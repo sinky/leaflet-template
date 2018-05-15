@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="de-DE">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>HTML 5 Template</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/leaflet.css" />
+  <style>
+html, body,
+#map {
+	height: 100%;
+	width: 100%;
+}
+	</style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/leaflet.js"></script>
+<script>
+	var map = L.map(document.querySelector('#map'), {
+		center: [51,7],
+		zoom: 9
+	});
+
+	// Tile Layers
+	var tile_osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+
+	var tile_stamen_watercolor = L.tileLayer('http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg', {
+		maxZoom: 18,
+		subdomains: "a b c d".split(" "),
+		attribution: 'Map tiles by <a href="http://stamen.com/">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org/">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
+	});
+
+	var tile_stamen_terrain = L.tileLayer('http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png', {
+		maxZoom: 16,
+		subdomains: "a b c d".split(" "),
+		attribution: 'Map tiles by <a href="http://stamen.com/">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org/">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
+	});
+
+	var baseLayers = {
+		"OSM": tile_osm,
+		"Stamen Watercolor": tile_stamen_watercolor,
+		"Stamen Terrain": tile_stamen_terrain
+	};
+
+	// Overlay
+	var markers = new L.featureGroup();
+	var marker = L.marker([51, 7]);
+	markers.addLayer(marker);
+	//map.fitBounds(markers.getBounds().pad(0.05));
+	
+	var overlays = {
+		"Markers": markers
+	};
+
+	// Initial Layers
+	tile_osm.addTo(map);
+	markers.addTo(map);
+	
+	// Layer Control with prereset layers or use controlLayers.addBaseLayer later
+	var controlLayers = L.control.layers(baseLayers, overlays).addTo(map);
+
+	// Map Scale
+	L.control.scale().addTo(map);
+	
+	// Mapbox
+	var mapboxLayer = function(id) {
+		return L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+			maxZoom: 22,
+			id: id,
+			accessToken: 'ACCESS_TOKEN'
+		});
+	}
+
+	var mapbox_street = mapboxLayer('mapbox.streets');
+	var mapbox_satellite = mapboxLayer('mapbox.satellite');
+	var mapbox_streets_satellite = mapboxLayer('mapbox.streets-satellite');
+	var mapbox_light = mapboxLayer('mapbox.light');
+	var mapbox_dark = mapboxLayer('mapbox.dark');
+
+	controlLayers.addBaseLayer(mapbox_street, "Mapbox Street");
+	controlLayers.addBaseLayer(mapbox_satellite, "Mapbox Satellite");
+	controlLayers.addBaseLayer(mapbox_streets_satellite, "Mapbox Street/Sat");
+	controlLayers.addBaseLayer(mapbox_light, "Mapbox Light");
+	controlLayers.addBaseLayer(mapbox_dark, "Mapbox Dark");
+	
+	// More Pugins
+	// https://leafletjs.com/plugins.html
+</script>
+</body>
+</html>
